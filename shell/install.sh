@@ -116,6 +116,10 @@ case $opcao in
    cd ~/
 
    sudo docker run -it --hostname $HOSTNAME hardemic/monitor
+
+   sudo docker run -d -p 3306:3306 --name ConteinerBD -e "MYSQL_DATABASE=banco1"-e"MYSQL_ROOT_PASSWORD=urubu100" mysql:5.7
+
+   sudo docker run java-docker
    
   ;;
 4) echo "=== DOCKER-COMPOSE ===" 
@@ -133,7 +137,7 @@ case $opcao in
    curl -O https://hardemic-pi.s3.amazonaws.com/docker-compose.yaml
 
    sudo docker-compose run app
-  ;;
+   
 *) echo "Opção $opcao Inválida!" 
    sleep 1
    menu
