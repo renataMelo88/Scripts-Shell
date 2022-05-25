@@ -46,7 +46,7 @@ installjava(){
 
   if [ $? -ne 0 ]
   then
-# Instala o maven
+ # Instala o maven
     sudo apt install maven -y
   fi
 }
@@ -141,4 +141,10 @@ case $opcao in
   ;;
 *) echo "Opção $opcao Inválida!"
    sleep 1
-   menu
+            
+  menu
+  ;;
+esac
+}
+
+menu

@@ -1,7 +1,6 @@
-# !bin/bash
+#!bin/bash
 
 echo "ASSISTENTE DE INSTALAÇÃO HARDEMIC"
-echo ""
 
 # sudo apt update -y
 
@@ -19,22 +18,22 @@ read -p "Escolha uma opção: " opcao
 
 installjava(){
   # Verificando se o java já está instalado => retorna 0 se estiver
-  which java | grep /usr/bin/java 
-  # Se o resultado do comando anterior não for igual a 0 
+  which java | grep /usr/bin/java
+  # Se o resultado do comando anterior não for igual a 0
   if [ $? -ne 0 ]
   then
     # Instala o zip
     sudo apt install zip -y
     # Verifica se o sdkman está instalado
     sdk v
-    # Se o resultado do comando anterior não for igual a 0 
+    # Se o resultado do comando anterior não for igual a 0
     if [ $? -ne 0 ]
     then
     # Instala o sdkman
       curl -s "https://get.sdkman.io" | bash
-  
+
       source "/home/$USER/.sdkman/bin/sdkman-init.sh"
-    # Instala o jdk11 
+    # Instala o jdk11
       sdk install java  11.0.14.10.1-amzn
 
     fi
@@ -42,19 +41,18 @@ installjava(){
   # Verifica se o maven está instalado
 
   mvn -v
-  # Se o resultado do comando anterior não for igual a 0 
+  # Se o resultado do comando anterior não for igual a 0
 
   if [ $? -ne 0 ]
   then
-  # Instala o maven
+ # Instala o maven
     sudo apt install maven -y
   fi
 }
 
 installdocker(){
 
-  docker -v
-
+    docker -v
   if [ $? -ne 0 ]
   then
      sudo apt-get install \
@@ -63,17 +61,16 @@ installdocker(){
     gnupg \
     lsb-release
 
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg -y
-
-    echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     sudo apt-get update
+
+    sudo apt install docker.io
 
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
     sudo docker run hello-world
+
+
 
     sleep 1
 
@@ -82,13 +79,20 @@ installdocker(){
     clear
   fi
 
-  sudo service docker start
-  sudo service docker enable  
+  sudo systemctl docker start
+  sudo systemctl docker enable
+
+  sudo docker pull mysql:5.7
+
+  echo "Vamos executar o conteiner que contém o mysql"
+
+  sudo docker run -d -p 3306:3306 --name ConteinerBD -e "MYSQL_DATABASE=banco1"-e"MYSQL_ROOT_PASSWORD=urubu100" mysql:5.7
+  sudo docker run java-docker
 }
 
 case $opcao in
 1) echo "=== CLI ==="
-# Chamando a função para instalar o java  
+# Chamando a função para instalar o java
   installjava
 
   cd ~/
@@ -99,7 +103,7 @@ case $opcao in
   java -jar hardemic.jar cli
   clear
   ;;
-2) echo "=== GUI ===" 
+2) echo "=== GUI ==="
    installjava
 
    cd ~/
@@ -110,22 +114,18 @@ case $opcao in
 
    clear
   ;;
-3) echo "=== DOCKER ===" 
+3) echo "=== DOCKER ==="
    installdocker
 
    cd ~/
 
    sudo docker run -it --hostname $HOSTNAME hardemic/monitor
 
-   sudo docker run -d -p 3306:3306 --name ConteinerBD -e "MYSQL_DATABASE=banco1"-e"MYSQL_ROOT_PASSWORD=urubu100" mysql:5.7
-
-   sudo docker run java-docker
-   
   ;;
-4) echo "=== DOCKER-COMPOSE ===" 
+4) echo "=== DOCKER-COMPOSE ==="
    installdocker
 
-   docker-compose -v 
+   docker-compose -v
 
    if [ $? -ne 0 ]
    then
@@ -137,10 +137,11 @@ case $opcao in
    curl -O https://hardemic-pi.s3.amazonaws.com/docker-compose.yaml
 
    sudo docker-compose run app
-   
-*) echo "Opção $opcao Inválida!" 
+  ;;
+*) echo "Opção $opcao Inválida!"
    sleep 1
-   menu
+            
+  menu
   ;;
 esac
 }
